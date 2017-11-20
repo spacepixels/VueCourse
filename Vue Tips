@@ -1,0 +1,5 @@
+Create a new vue project:
+
+sudo vue init webpack [project-name]
+
+For other template options refer to https://github.com/vuejs/vue-cli

@@ -1,0 +1,176 @@
+Main.js
+
+import Vue from 'vue'
+import App from './App.vue'
+
+export const eventBus = new Vue({
+    methods: {
+      resetStatus(data) {
+          this.$emit('resetStatus', data);
+      },
+      setServerDetails(data) {
+          this.$emit('setServerDetails', data);
+      }
+    }
+});
+
+new Vue({
+  el: '#app',
+  render: h => h(App)
+});
+
+App.vue
+<template>
+    <div class="container">
+        <app-header></app-header>
+        <hr>
+        <div class="row">
+            <servers></servers>
+            <app-server-details :serverStatus="serverStatus" :serverId="serverId"></app-server-details>
+        </div>
+        <hr>
+        <app-footer></app-footer>
+    </div>
+</template>
+
+<script>
+    import Header from './components/Shared/Header.vue';
+    import Footer from './components/Shared/Footer.vue';
+    import Servers from './components/Server/Servers.vue';
+    import ServerDetails from './components/Server/ServerDetails.vue';
+    import { eventBus } from './main';
+
+    export default {
+        data: function() {
+            return {
+                serverId: 0,
+                serverStatus: ''
+            };
+        },
+        components: {
+            appHeader: Header,
+            Servers,
+            'app-server-details': ServerDetails,
+            'app-footer': Footer
+        },
+        created() {
+            eventBus.$on('setServerDetails', (data) => {
+                this.serverId = data.id;
+                this.serverStatus = data.status;
+            });
+            eventBus.$on('resetStatus', (data) => {
+                this.serverStatus =  'Normal';
+            });
+        }
+    }
+</script>
+
+<style>
+
+</style>
+
+Servers.vue
+<template>
+    <div class="col-xs-12 col-sm-6">
+        <ul class="list-group">
+            <li
+                    class="list-group-item"
+                    v-for="index in servers">
+                 <app-server :id="index.id" :status="index.status"></app-server>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<script>
+    import Server from './Server.vue';
+    import { eventBus } from '../../main';
+    //import ServerDetails from './ServerDetails.vue';
+    export default {
+        data: function() {
+            return {
+                servers: [
+                    { id: 1, status: 'Normal'},
+                    { id: 2, status: 'Critical'},
+                    { id: 3, status: 'Unknown'},
+                    { id: 4, status: 'Normal'}
+                ]
+            };
+        },
+        components: {
+            appServer: Server
+        },
+        created() {
+            eventBus.$on('resetStatus', (data) => {
+                this.servers[data.id -1].status =  'Normal';
+            });
+        }
+    }
+
+</script>
+
+<style>
+
+</style>
+
+Server.vue
+<template>
+    <div class="clickable-container" @click="setServerDetails">Server #{{ id }} {{ status }}</div>
+</template>
+
+<script>
+    import { eventBus } from '../../main.js';
+    export default {
+       props: {
+           id: Number,
+           status: String
+       },
+       methods: {
+           setServerDetails() {
+               eventBus.setServerDetails({id: this.id, status: this.status});
+           }
+       }
+    }
+</script>
+
+
+<style>
+    .clickable-container {
+        cursor: pointer;
+    }
+</style>
+
+ServerDetails.vue
+<template>
+    <div class="col-xs-12 col-sm-6">
+        <p>Server Details are currently updated</p>
+        <p>ServerId: {{ serverId }}</p>
+        <p>Server Status: {{ serverStatus }}</p>
+        <button @click="resetStatus">Reset Status</button>
+    </div>
+</template>
+
+<script>
+    import { eventBus } from '../../main.js';
+    export default {
+        props: {
+            serverId: Number,
+            serverStatus: String
+        },
+        methods: {
+            resetStatus() {
+                eventBus.resetStatus({id: this.serverId, status: this.serverStatus});
+            }
+        },
+        created() {
+            eventBus.$on('setServerDetailsId', (data) => {
+                this.status = data;
+            });
+        }
+    }
+</script>
+
+<style>
+
+</style>
+

@@ -14,7 +14,7 @@ export const fruitMixin = {
             });
         }
     },
-    created() {
-        console.log('Created');
-    }
+    // created() {
+    //     console.log('Created');
+    // }
 };

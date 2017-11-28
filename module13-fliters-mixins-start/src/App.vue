@@ -32,6 +32,7 @@
                 //filterText: ''
             }
         },
+        //Filters do not change the value of the data just the value in the template
         filters: {
             toUppercase(value) {
                 return value.toUpperCase();
